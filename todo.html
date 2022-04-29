@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+
+    <title>Document</title>
+    <style>
+        .container {
+            padding: 30px;
+        }
+
+        button{
+            cursor: pointer;
+        }
+
+        input {
+            border-radius: 7px;
+        }
+        input.error{
+            background-color: pink;
+        }
+
+        thead {
+            background-color: rgb(226, 198, 128);
+        }
+
+        h1 {
+            font-family: georgia;
+            font-style: italic;
+            box-shadow: 10px 10px 7px rgb(240, 200, 200);
+
+        }
+
+        table {
+            box-shadow: 10px 10px 10px rgb(220, 155, 155);
+        }
+    </style>
+</head>
+
+<body>
+    <div style="background-color: blanchedalmond; width: 1000px; margin-left: 50px; border-radius: 40px;">
+
+        <div class="container text-center mt-4">
+            <h1 class="text-white">TO-DO LIST</h1><br>
+            <input type="date" id="date">
+            <input type="time" id="time">
+            <input type="text" id="task" placeholder="Task"><br><br>
+            <button onclick="save()">Save</button><br><br>
+
+            <div>
+                <table class="table table-bordered">
+
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>No</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Task</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><button>Edit</button> <button>Delete</button></td>
+                            <td> 1</td>
+                            <td>29/04/2022</td>
+                            <td>12:12PM</td>
+                            <td></td>
+                            <td></td>
+                            <td><button>Close</button></td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+   </div>
+
+   <script>
+       function save()
+        {
+          let date = document.getElementById("date").value;
+          let time = document.getElementById("time").value;
+          let task = document.getElementById("task").value;
+          document.getElementById("date").classList.remove("error");
+          document.getElementById("time").classList.remove("error");
+          document.getElementById("task").classList.remove("error");
+          if(date == "")
+            {
+                document.getElementById("date").classList.  add("error");
+                return;
+            }
+            if(time == "")
+            {
+                document.getElementById("time").classList.add("error");
+                return;
+            }
+            if(task == "")
+            {
+                document.getElementById("task").classList.add("error");
+                return;
+            }
+            let id = 0;          
+
+            let tasks = new Array();
+            if(localStorage.getItem("tasks") != null)
+            {
+                tasks = JSON.parse(localStorage.getItem("tasks"));
+                for(let i = 0; i < tasks.length; i++)
+                {
+                    if(id < tasks[i]["id"])
+                    {
+                        id = tasks[i]["id"];
+                    }
+                }
+            }
+            id++;
+             let mytask = {
+                id:id,
+                date:date,
+                time:time,
+                task:task
+            }
+            tasks.push(mytask);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+   </script>
+</body>
+
+</html>
