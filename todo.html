@@ -9,6 +9,9 @@
 
     <title>Document</title>
     <style>
+        .main{
+            background-color: blanchedalmond; width: 1000px; margin: auto; border-radius: 40px;
+        }
         .container {
             padding: 30px;
         }
@@ -38,21 +41,25 @@
         table {
             box-shadow: 10px 10px 10px rgb(220, 155, 155);
         }
+        @media screen and (max-width: 600px) {
+            .main {width: 50px;}
+        }
     </style>
 </head>
 
 <body>
-    <div style="background-color: blanchedalmond; width: 1000px; margin-left: 50px; border-radius: 40px;">
+    <div class="main">
 
         <div class="container text-center mt-4">
             <h1 class="text-white">TO-DO LIST</h1><br>
+            <input type="hidden" id="id" value="0">
             <input type="date" id="date">
             <input type="time" id="time">
             <input type="text" id="task" placeholder="Task"><br><br>
             <button onclick="save()">Save</button><br><br>
 
             <div>
-                <table class="table table-bordered">
+                <table class="table table-bordered" id="mytable">
 
                     <thead>
                         <tr>
@@ -66,6 +73,24 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr>
+                            <td><button>Edit</button> <button>Delete</button></td>
+                            <td> 1</td>
+                            <td>29/04/2022</td>
+                            <td>12:12PM</td>
+                            <td></td>
+                            <td></td>
+                            <td><button>Close</button></td>
+                        </tr>
+                        <tr>
+                            <td><button>Edit</button> <button>Delete</button></td>
+                            <td> 1</td>
+                            <td>29/04/2022</td>
+                            <td>12:12PM</td>
+                            <td></td>
+                            <td></td>
+                            <td><button>Close</button></td>
+                        </tr>
                         <tr>
                             <td><button>Edit</button> <button>Delete</button></td>
                             <td> 1</td>
@@ -106,30 +131,130 @@
                 document.getElementById("task").classList.add("error");
                 return;
             }
-            let id = 0;          
-
+            let id = document.getElementById("id").value;
             let tasks = new Array();
-            if(localStorage.getItem("tasks") != null)
+            if(id == 0)
             {
-                tasks = JSON.parse(localStorage.getItem("tasks"));
-                for(let i = 0; i < tasks.length; i++)
+                if(localStorage.getItem("tasks") != null)
                 {
-                    if(id < tasks[i]["id"])
+                    tasks = JSON.parse(localStorage.getItem("tasks"));
+                    for(let i = 0; i < tasks.length; i++)
                     {
-                        id = tasks[i]["id"];
+                        if(id < tasks[i]["id"])
+                        {
+                            id = tasks[i]["id"];
+                        }
                     }
                 }
+                id++;
+                let mytask = {
+                    id:id,
+                    date:date,
+                    time:time,
+                    task:task,
+                    status:"open"
+                }
+                tasks.push(mytask);
             }
-            id++;
-             let mytask = {
-                id:id,
-                date:date,
-                time:time,
-                task:task
+            else{
+                tasks = JSON.parse(localStorage.getItem("tasks"));
+                    for(let i = 0; i < tasks.length; i++)
+                    {
+                        if(id == tasks[i]["id"])
+                        {
+                            tasks[i]["date"] = date;
+                            tasks[i]["time"] = time;
+                            tasks[i]["task"] = task;
+                        }
+                    }
             }
-            tasks.push(mytask);
             localStorage.setItem("tasks", JSON.stringify(tasks));
+            document.getElementById("id").value = "0";
+            list();
         }
+
+        function list()
+        {
+            let table = document.getElementById("mytable");
+            let rowcount = table.rows.length;
+            while(rowcount > 1)
+            {
+                table.deleteRow(1);
+                rowcount--;
+            }
+            if(localStorage.getItem("tasks") != null)
+            {
+                let tasks = JSON.parse(localStorage.getItem("tasks"));
+                for(let i = 0; i < tasks.length; i++)
+                {
+                    let row = table.insertRow(1);
+                    let cell0 = row.insertCell(0);
+                    let cell1 = row.insertCell(1);
+                    let cell2 = row.insertCell(2);
+                    let cell3 = row.insertCell(3);
+                    let cell4 = row.insertCell(4);
+                    let cell5 = row.insertCell(5);
+                    let cell6 = row.insertCell(6);
+
+                    cell0.innerHTML = "<button onclick='edit(" + tasks[i]["id"] + ")'>Edit</button><button onclick='deleteTask(" + tasks[i]["id"] + ")'>Delete</button>";
+                    cell1.innerHTML = i + 1;
+                    cell2.innerHTML = tasks[i]["date"];
+                    cell3.innerHTML = tasks[i]["time"];
+                    cell4.innerHTML = tasks[i]["task"];
+                    cell5.innerHTML = tasks[i]["status"];
+                    if(tasks[i]["status"] == "open")
+                        cell6.innerHTML = "<button onclick='changestatus(" + tasks[i]["id"] + ", \"close\")'>Close</button>";
+                    else
+                    cell6.innerHTML = "<button onclick='changestatus(" + tasks[i]["id"] + ", \"open\")'>Open</button>";
+                }
+            }            
+        }
+
+        function deleteTask(id)
+        {
+            if(confirm("Sure to delete?"))
+            {
+                let tasks = JSON.parse(localStorage.getItem("tasks"));
+                let newtasks = new Array();
+                for(let i = 0; i < tasks.length; i++)
+                {
+                    if(tasks[i]["id"] != id)
+                        newtasks.push(tasks[i]);
+                }
+                localStorage.setItem("tasks", JSON.stringify(newtasks));
+                list();
+            }
+        }
+
+        function changestatus(id, status)
+        {
+            let tasks = JSON.parse(localStorage.getItem("tasks"));
+            for(let i = 0; i < tasks.length; i++)
+            {
+                if(tasks[i]["id"] == id)
+                    tasks[i]["status"] = status;
+            }
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            list();
+        }
+
+        function edit(id)
+        {
+            let tasks = JSON.parse(localStorage.getItem("tasks"));
+            for(let i = 0; i < tasks.length; i++)
+            {
+                if(tasks[i]["id"] == id)
+                {
+                    document.getElementById("id").value = tasks[i]["id"];
+                    document.getElementById("date").value = tasks[i]["date"];
+                    document.getElementById("time").value = tasks[i]["time"];
+                    document.getElementById("task").value = tasks[i]["task"];
+                }
+                    
+            }
+        }
+
+        list();
 
    </script>
 </body>
